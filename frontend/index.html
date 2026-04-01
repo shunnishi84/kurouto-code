@@ -152,6 +152,48 @@
     #send-btn:hover { background: #f0b030; }
     #send-btn:disabled { background: #444; color: #666; cursor: not-allowed; }
 
+    /* 怒りメッセージ */
+    .msg-angry {
+      text-align: center;
+      padding: 20px 10px;
+      animation: angry-shake 0.4s ease;
+    }
+    .msg-angry .angry-text {
+      font-size: clamp(22px, 5vw, 36px);
+      font-weight: bold;
+      color: #ff3333;
+      text-shadow: 0 0 12px rgba(255,50,50,0.7);
+      display: block;
+      line-height: 1.4;
+    }
+    .msg-angry .angry-sub {
+      color: #884444;
+      font-size: 12px;
+      margin-top: 6px;
+      display: block;
+    }
+    @keyframes angry-shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-6px); }
+      40%      { transform: translateX(6px); }
+      60%      { transform: translateX(-4px); }
+      80%      { transform: translateX(4px); }
+    }
+
+    /* コードブロック風表示 */
+    .msg-kurouto .text pre {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 10px 12px;
+      margin-top: 6px;
+      overflow-x: auto;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #c8c8c8;
+      white-space: pre;
+    }
+
     /* モバイル */
     @media (max-width: 600px) {
       body { font-size: 13px; }
@@ -195,6 +237,8 @@
   const messagesEl = document.getElementById("messages");
   const inputEl    = document.getElementById("user-input");
   const sendBtn    = document.getElementById("send-btn");
+
+  let exchangeCount = 0;  // やり取り回数カウンター
 
   const SPINNER_FRAMES = ["⠋","⠙","⠹","⠸","⠼","⠴","⠦","⠧","⠇","⠏"];
   const THINKING_MSGS  = ["ふむ...", "考えておる...", "若いもんのことを思うと...", "ワシの時代はのう..."];
@@ -248,8 +292,22 @@
     return () => { clearInterval(timer); row.remove(); };
   }
 
-  // 説教をタイプライター表示
-  function typewriterRant(text) {
+  // 怒りメッセージを表示
+  function showAngryMessage() {
+    addSeparator();
+    const row = document.createElement("div");
+    row.className = "msg-angry";
+    row.innerHTML = `
+      <span class="angry-text">バカモノ！<br>いつまでAIに頼ってるんだ！</span>
+      <span class="angry-sub">— 玄人より渾身の一言 —</span>
+    `;
+    messagesEl.appendChild(row);
+    addSeparator();
+    scrollBottom();
+  }
+
+  // 説教をタイプライター表示（コードブロック対応）
+  function typewriterRant(text, onDone) {
     addSeparator();
     const row = document.createElement("div");
     row.className = "msg-kurouto";
@@ -262,9 +320,51 @@
     row.appendChild(textEl);
     messagesEl.appendChild(row);
 
+    // コードブロック（#include などを含む）はpreタグで一括表示
+    const codeMatch = text.match(/^([\s\S]*?)(#include[\s\S]+return 0;\n\})([\s\S]*)$/);
+    if (codeMatch) {
+      const before = codeMatch[1];
+      const code   = codeMatch[2];
+      const after  = codeMatch[3];
+      const fullText = before + "\x00CODE\x00" + after;
+      let i = 0;
+      let codeInserted = false;
+      function tick() {
+        if (i >= fullText.length) { addSeparator(); scrollBottom(); if (onDone) onDone(); return; }
+        const ch = fullText[i++];
+        if (ch === "\x00" && fullText.slice(i, i+4) === "CODE") {
+          i += 5; // skip "CODE\x00"
+          const pre = document.createElement("pre");
+          pre.textContent = code;
+          textEl.appendChild(pre);
+          codeInserted = true;
+          scrollBottom();
+          setTimeout(tick, 30);
+          return;
+        }
+        if (ch === "\n") {
+          textEl.appendChild(document.createTextNode("\n"));
+        } else {
+          const last = textEl.lastChild;
+          if (last && last.nodeType === Node.TEXT_NODE && !codeInserted) {
+            last.textContent += ch;
+          } else {
+            textEl.appendChild(document.createTextNode(ch));
+            codeInserted = false;
+          }
+        }
+        scrollBottom();
+        const delay = "。、\n".includes(ch) ? 80 + Math.random() * 120 : 15 + Math.random() * 30;
+        setTimeout(tick, delay);
+      }
+      tick();
+      return;
+    }
+
+    // 通常テキスト
     let i = 0;
     function tick() {
-      if (i >= text.length) { addSeparator(); scrollBottom(); return; }
+      if (i >= text.length) { addSeparator(); scrollBottom(); if (onDone) onDone(); return; }
       const ch = text[i++];
       textEl.textContent += ch;
       scrollBottom();
@@ -284,6 +384,7 @@
     inputEl.disabled = true;
     sendBtn.disabled = true;
 
+    exchangeCount++;
     addUserMessage(prompt);
 
     const stopThinking = startThinking();
@@ -292,11 +393,13 @@
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, exchange_count: exchangeCount }),
       });
       const data = await res.json();
       stopThinking();
-      typewriterRant(data.rant);
+      typewriterRant(data.rant, () => {
+        if (data.angry) showAngryMessage();
+      });
     } catch (e) {
       stopThinking();
       typewriterRant("……ネットワークがつながらん。\nワシが若い頃はオフラインでも仕事をしたもんじゃ。\n根性が足りんのじゃ。");
