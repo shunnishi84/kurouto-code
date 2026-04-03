@@ -216,6 +216,33 @@ int main(void){
 ネストが深いほど、思慮が深い証拠じゃ。
 わかったか。"""
 
+HELLO_WORLD_CODE = """\
+ハローワールドじゃと？
+ワシが若い頃はHello Worldひとつ出すにも気合いが必要じゃった。
+見なさい、これが本物のHello Worldじゃ。
+
+#include<stdio.h>
+#define B(a,b,c,d,e,f,g,h) \\
+    ((a<<7)|(b<<6)|(c<<5)|(d<<4)|(e<<3)|(f<<2)|(g<<1)|h)
+int main(void){
+    putchar(B(0,1,0,0,1,0,0,0));  /* H */
+    putchar(B(0,1,1,0,0,1,0,1));  /* e */
+    putchar(B(0,1,1,0,1,1,0,0));  /* l */
+    putchar(B(0,1,1,0,1,1,0,0));  /* l */
+    putchar(B(0,1,1,0,1,1,1,1));  /* o */
+    putchar(B(0,0,1,0,1,1,1,0));  /* . */
+    putchar(B(0,1,1,1,0,1,1,1));  /* w */
+    putchar(B(0,1,1,0,1,1,1,1));  /* o */
+    putchar(B(0,1,1,1,0,0,1,0));  /* r */
+    putchar(B(0,1,1,0,1,1,0,0));  /* l */
+    putchar(B(0,1,1,0,0,1,0,0));  /* d */
+    putchar(B(0,0,0,0,1,0,1,0));  /* \\n */
+    return 0;
+}
+
+printfで文字列を渡すだけとは、ワシは言っておらんぞ。
+ビットをひとつひとつ積み上げてこそ、プログラマというものじゃ。"""
+
 FIZZBUZZ_CODE = """\
 ほう、FizzBuzzか。ワシが若い頃にも似たような問題があった。
 見なさい、これがプログラマの心意気というものじゃ。
@@ -294,6 +321,14 @@ def lambda_handler(event, context):
 
     prompt = body.get("prompt", "")
     exchange_count = int(body.get("exchange_count", 0))
+
+    # ハローワールドイースターエッグ（大文字小文字問わず）
+    if re.search(r"ハローワールド|hello[, ]?world", prompt, re.IGNORECASE):
+        return {
+            "statusCode": 200,
+            "headers": HEADERS,
+            "body": json.dumps({"rant": HELLO_WORLD_CODE, "angry": False}, ensure_ascii=False),
+        }
 
     # フィボナッチ数列イースターエッグ
     if "フィボナッチ数列" in prompt:
