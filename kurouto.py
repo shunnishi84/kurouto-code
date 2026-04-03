@@ -153,7 +153,7 @@ def clear_line():
 
 
 def print_header():
-    print(f"\n{BOLD}{ORANGE}  玄人コード{RESET}  {GRAY}v0.1.0 (爺バージョン){RESET}")
+    print(f"\n{BOLD}{ORANGE}  玄人コード{RESET}  {GRAY}v0.2.0 (爺バージョン){RESET}")
     print(f"  {GRAY}by 玄人 (じじい){RESET}")
     print()
 
