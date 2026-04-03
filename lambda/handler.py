@@ -113,6 +113,95 @@ HEADERS = {
 }
 
 
+FIBONACCI_CODE = """\
+フィボナッチ数列じゃと？ワシが現役の頃に書いたコードがある。
+見なさい、これが本物のC言語じゃ。
+
+#include<stdio.h>
+#define M 50
+#define ADD(x,y)((x)+(y))
+#define ISZERO(n)((n)==0)
+#define ISONE(n)((n)==1)
+
+int _a,_b,_c,_i,_j,_k;
+int _m[M];
+
+int _f(int n){
+    if(!ISZERO(n)){
+        if(!ISONE(n)){
+            if(n>0){
+                if(n<M){
+                    if(_m[n]){
+                        if(_m[n]>0){
+                            return _m[n];
+                        }else{
+                            return 0;
+                        }
+                    }else{
+                        _a=_f(n-1);
+                        if(_a>=0){
+                            _b=_f(n-2);
+                            if(_b>=0){
+                                _c=ADD(_a,_b);
+                                if(_c>=0){
+                                    if(_c<2147483647){
+                                        _m[n]=_c;
+                                        if(_m[n]==_c){
+                                            return _m[n];
+                                        }else{
+                                            return -1;
+                                        }
+                                    }else{
+                                        return -1;
+                                    }
+                                }else{
+                                    return -1;
+                                }
+                            }else{
+                                return -1;
+                            }
+                        }else{
+                            return -1;
+                        }
+                    }
+                }else{
+                    return -1;
+                }
+            }else{
+                return -1;
+            }
+        }else{
+            return 1;
+        }
+    }else{
+        return 0;
+    }
+}
+int main(void){
+    _i=0;
+    if(_i<M){
+        _j=0;
+        while(_j<20){
+            if(_j>=0){
+                if(_j<M){
+                    _k=_f(_j);
+                    if(_k>=0){
+                        if(_k<2147483647){
+                            printf("%d: %d\\n",_j,_k);
+                        }
+                    }
+                }
+            }
+            _j=_j+1;
+        }
+    }
+    return 0;
+}
+
+読みにくいじゃと？これがC言語の美学というものじゃ。
+ネストが深いほど、思慮が深い証拠じゃ。
+わかったか。"""
+
 FIZZBUZZ_CODE = """\
 ほう、FizzBuzzか。ワシが若い頃にも似たような問題があった。
 見なさい、これがプログラマの心意気というものじゃ。
@@ -191,6 +280,14 @@ def lambda_handler(event, context):
 
     prompt = body.get("prompt", "")
     exchange_count = int(body.get("exchange_count", 0))
+
+    # フィボナッチ数列イースターエッグ
+    if "フィボナッチ数列" in prompt:
+        return {
+            "statusCode": 200,
+            "headers": HEADERS,
+            "body": json.dumps({"rant": FIBONACCI_CODE, "angry": False}, ensure_ascii=False),
+        }
 
     # fizzbuzzイースターエッグ
     if re.search(r"fizzbuzz|fizz.?buzz", prompt.lower()):
