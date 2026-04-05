@@ -1,0 +1,253 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── テーマ変数（ダーク） ── */
+:root {
+  --bg:           #1a1a1a;
+  --bg-input:     #1a1a1a;
+  --border:       #333;
+  --separator:    #2e2e2e;
+  --text:         #d4d4d4;
+  --text-user:    #c8c8c8;
+  --label-user:   #ffffff;
+  --label-kurouto:#e8a020;
+  --subtitle:     #555;
+  --thinking:     #555;
+  --prompt-sign:  #4ec9b0;
+  --placeholder:  #444;
+  --scrollbar-thumb: #444;
+  --code-bg:      #111;
+  --code-border:  #333;
+  --code-text:    #c8c8c8;
+  --btn-disabled-bg:    #444;
+  --btn-disabled-color: #666;
+}
+
+/* ── テーマ変数（ライト） ── */
+body.light {
+  --bg:           #f0f0f0;
+  --bg-input:     #f0f0f0;
+  --border:       #d0d0d0;
+  --separator:    #dedede;
+  --text:         #1a1a1a;
+  --text-user:    #333333;
+  --label-user:   #111111;
+  --label-kurouto:#b07010;
+  --subtitle:     #888;
+  --thinking:     #999;
+  --prompt-sign:  #007a6e;
+  --placeholder:  #aaa;
+  --scrollbar-thumb: #bbb;
+  --code-bg:      #e8e8e8;
+  --code-border:  #ccc;
+  --code-text:    #333;
+  --btn-disabled-bg:    #ccc;
+  --btn-disabled-color: #999;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* ── ヘッダー ── */
+#header {
+  padding: 14px 20px 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+#header .title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #e8a020;
+}
+#header .subtitle {
+  color: var(--subtitle);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* テーマ切替ボタン */
+#theme-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: border-color 0.2s, color 0.2s;
+}
+#theme-btn:hover { border-color: #e8a020; color: #e8a020; }
+
+/* ── メッセージ領域 ── */
+#messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+#messages::-webkit-scrollbar { width: 6px; }
+#messages::-webkit-scrollbar-track { background: var(--bg); }
+#messages::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+
+.separator {
+  border: none;
+  border-top: 1px solid var(--separator);
+  margin: 12px 0;
+}
+
+/* ユーザーメッセージ */
+.msg-user {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 6px 0;
+}
+.msg-user .label {
+  color: var(--label-user);
+  font-weight: bold;
+  white-space: nowrap;
+  min-width: 3em;
+}
+.msg-user .text {
+  color: var(--text-user);
+  word-break: break-all;
+}
+
+/* 玄人メッセージ */
+.msg-kurouto {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 6px 0;
+}
+.msg-kurouto .label {
+  color: var(--label-kurouto);
+  font-weight: bold;
+  white-space: nowrap;
+  min-width: 3em;
+}
+.msg-kurouto .text {
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* 思考中 */
+.msg-thinking {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 0;
+  color: var(--thinking);
+}
+@keyframes spin-frames { 0% { content: "⠋"; } }
+.spinner-char { display: inline-block; }
+
+/* ── 入力エリア ── */
+#input-area {
+  border-top: 1px solid var(--border);
+  padding: 12px 20px;
+  flex-shrink: 0;
+  background: var(--bg-input);
+  transition: background 0.2s, border-color 0.2s;
+}
+#input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#input-row .prompt-sign {
+  color: var(--prompt-sign);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+#user-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  caret-color: #e8a020;
+}
+#user-input::placeholder { color: var(--placeholder); }
+#send-btn {
+  background: #e8a020;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+#send-btn:hover { background: #f0b030; }
+#send-btn:disabled { background: var(--btn-disabled-bg); color: var(--btn-disabled-color); cursor: not-allowed; }
+
+/* 怒りメッセージ */
+.msg-angry {
+  text-align: center;
+  padding: 20px 10px;
+  animation: angry-shake 0.4s ease;
+}
+.msg-angry .angry-text {
+  font-size: clamp(22px, 5vw, 36px);
+  font-weight: bold;
+  color: #ff3333;
+  text-shadow: 0 0 12px rgba(255,50,50,0.7);
+  display: block;
+  line-height: 1.4;
+}
+.msg-angry .angry-sub {
+  color: #884444;
+  font-size: 12px;
+  margin-top: 6px;
+  display: block;
+}
+@keyframes angry-shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+
+/* コードブロック風表示 */
+.msg-kurouto .text pre {
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 4px;
+  padding: 10px 12px;
+  margin-top: 6px;
+  overflow-x: auto;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--code-text);
+  white-space: pre;
+}
+
+/* モバイル */
+@media (max-width: 600px) {
+  body { font-size: 13px; }
+  #header { padding: 10px 14px 8px; }
+  #messages { padding: 12px 14px; }
+  #input-area { padding: 10px 14px; }
+}

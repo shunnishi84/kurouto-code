@@ -1,3 +1,4 @@
 lambda/function.zip
 __pycache__/
 *.pyc
+*.pyo
